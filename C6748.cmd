@@ -12,6 +12,8 @@
 /*                 scheme according to the size of your program.            */
 /*                                                                          */
 /****************************************************************************/
+-stack          0x00002000 /* Stack Size */
+-heap           0x00000800 /* Heap Size */
 
 MEMORY
 {
@@ -46,7 +48,7 @@ SECTIONS
     .args          >  SHRAM                    
     .ppinfo        >  SHRAM
     .ppdata        >  SHRAM
-  
+
     /* COFF sections */
     .pinit         >  SHRAM
     .cinit         >  SHRAM
