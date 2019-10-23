@@ -43,6 +43,8 @@
 #include "bl.h"
 #include "bl_nand.h"
 #include "nandlib.h"
+#include "delay.h"
+#include "hw_types.h"
 
 /******************************************************************************
 **                    External Variable Declararions 
@@ -50,14 +52,15 @@
 
 extern char *deviceType;
 
-
 /******************************************************************************
 **                     Local Function Declararion 
 *******************************************************************************/
 
 static void (*appEntry)();
 
-
+static void showMenu();
+static unsigned int updateApp();
+static unsigned int updateFlash();
 /******************************************************************************
 **                     Global Variable Definitions
 *******************************************************************************/
@@ -79,8 +82,10 @@ NandInfo_t *hNandInfo;
 */
 int main(void)
 {
-    int fileLen;
-    int numPagesFile;
+
+    int secondCnt;
+    char str;
+    int status;
     /* Configures PLL and DDR controller*/
     BlPlatformConfig();
 
@@ -90,7 +95,120 @@ int main(void)
     UARTPuts(deviceType, -1);
     UARTPuts(" Boot Loader\n\r", -1);
 
-    UARTPuts("Start xmodem Receive...\n\r", -1);
+    while(1)
+    {
+        UARTPuts("Press k to enter the update process within 3s",-1);
+
+        secondCnt = 3;
+        do{
+            StartTimer(1000);
+            do{
+                str = UARTConsoleGetcNonBlocking();
+                status = IsTimerElapsed();
+            }while(str != 'k' && status == 0);
+            StopTimer();
+            secondCnt--;
+            UARTprintf("\b\b%ds",secondCnt);
+        }while(secondCnt > 0 && str != 'k');
+        UARTPuts("\r\n",-1);
+
+        if(str == 'k')
+        {
+
+            showMenu();
+
+            secondCnt = 5;
+            do{
+                StartTimer(1000);
+                do{
+                    str = UARTConsoleGetcNonBlocking();
+                    status = IsTimerElapsed();
+                    if(str == '\r')
+                    {
+                        showMenu();
+                    }
+                }while(str != 'u' && str != 'd' && str != 'b' && status == 0);
+                StopTimer();
+                secondCnt--;
+                UARTprintf("\b\b%ds",secondCnt);
+            }while( str != 'u' && str != 'd' && str != 'b' && secondCnt > 0);
+            UARTPuts("\r\n",-1);
+
+            if(str == 'u')
+            {
+                UARTPuts("\r\nWrite Application to NandFlash and Boot ... \r\n",-1);
+                if(updateFlash() == true)
+                {
+                    break;
+                }
+            }
+            else if(str == 'd')
+            {
+                UARTPuts("\r\nUpdate Application for Debug ... \r\n",-1);
+                if(updateApp() == true)
+                {
+                    break;
+                }
+
+            }
+            else
+            {
+                UARTPuts("Load Application From NAND Flash\r\n",-1);
+                if(ImageCopy() == true)
+                {
+                    break;
+                }
+            }
+        }
+        else
+        {
+            UARTPuts("Load Application From NAND Flash\r\n",-1);
+            if(ImageCopy() == true)
+            {
+                break;
+            }
+        }
+    }
+
+
+    UARTPuts("Jumping to Application...\r\n\n", -1);
+
+    /* Do any post-copy config before leaving boot loader */
+    BlPlatformConfigPostBoot();
+
+    /* Giving control to the application */
+    appEntry = (void (*)(void)) entryPoint;
+
+    (*appEntry)( );
+
+    return 0;
+}
+
+static unsigned int updateApp()
+{
+    int fileLen;
+    int retVal = false;
+
+    UARTPuts("\r\nStart xmodem Receive...\n\r", -1);
+    fileLen = xmodemReceive((char *)DDR_START_ADDR, 256*1024);
+
+    if (fileLen < 0) {
+        UARTprintf ("Xmodem receive error: status: %d\n", fileLen);
+    }
+    else  {
+        UARTprintf ("Xmodem successfully received %d bytes\n", fileLen);
+        UARTBootCopy();
+        retVal = true;
+    }
+    return retVal;
+}
+
+static unsigned int updateFlash()
+{
+    int fileLen;
+    int numPagesFile;
+    int retVal = false;
+    UARTPuts("\r\nStart xmodem Receive...\n\r", -1);
     fileLen = xmodemReceive((char *)DDR_START_ADDR, 256*1024);
 
     if (fileLen < 0) {
@@ -107,28 +225,25 @@ int main(void)
         {
             numPagesFile++;
         }
-        BlNANDWriteFlash(hNandInfo,(unsigned char*)DDR_START_ADDR,numPagesFile);
 
+        if(BlNANDWriteFlash(hNandInfo,(unsigned char*)DDR_START_ADDR,numPagesFile) == NAND_STATUS_PASSED)
+        {
+            UARTPuts("Write Flash Success...\r\n",-1);
+            UARTPuts("Boot from NAND Flash...\r\n",-1);
+            retVal = ImageCopy();
+        }
     }
+    return retVal;
 
+}
 
-
-#if 1
-    /* Copies application from non-volatile flash memory to RAM */
-    ImageCopy();
-#endif
-
-    UARTPuts("Jumping to StarterWare Application...\r\n\n", -1);
-
-    /* Do any post-copy config before leaving boot loader */
-    BlPlatformConfigPostBoot();
-
-    /* Giving control to the application */
-    appEntry = (void (*)(void)) entryPoint;
-
-    (*appEntry)( );
-
-    return 0;
+static void showMenu()
+{
+    UARTPuts("\r\n\r\n",-1);
+    UARTPuts("u: update flash with xmodem file\r\n",-1);
+    UARTPuts("d: update application with xmodem file\r\n",-1);
+    UARTPuts("b: boot directly from flash\r\n",-1);
+    UARTPuts("Press key to select operation within 5s",-1);
 }
 
 void BootAbort(void)

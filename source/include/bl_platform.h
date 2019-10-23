@@ -129,7 +129,7 @@
 #elif defined(NAND)
 
     /* Default image location is based on sfh tool and is page 0 of block 6 */
-    #define IMAGE_OFFSET                   (1*NAND_BLOCKSIZE_128KB)
+    #define IMAGE_OFFSET                   (2*NAND_BLOCKSIZE_128KB)
 
     /*****************************************************************************/
     /*

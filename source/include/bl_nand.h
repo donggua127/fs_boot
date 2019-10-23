@@ -63,7 +63,7 @@ BL_NAND_Header;
 **                    External Function Declarations 
 *******************************************************************************/
 extern NandInfo_t *BL_NAND_Configure(void);
-extern void BlNANDReadFlash( NandInfo_t *nandInfo,
+extern unsigned int BlNANDReadFlash( NandInfo_t *nandInfo,
                              unsigned int flashAddr,
                              unsigned int size,
                              unsigned char *destAddr);

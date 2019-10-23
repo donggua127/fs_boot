@@ -60,30 +60,30 @@ static void TimerIsr(void)
 {
 #ifdef _TMS320C6X
     /* Disable the timer interrupt */
-    TimerIntDisable(SOC_TMR_0_REGS, TMR_INT_TMR12_NON_CAPT_MODE);
+    TimerIntDisable(SOC_TMR_1_REGS, TMR_INT_TMR12_NON_CAPT_MODE);
 
     /* Clear the interrupt status in INTC and in timer */
     IntEventClear(SYS_INT_T64P0_TINT12);
-    TimerIntStatusClear(SOC_TMR_0_REGS, TMR_INT_TMR12_NON_CAPT_MODE);
+    TimerIntStatusClear(SOC_TMR_1_REGS, TMR_INT_TMR12_NON_CAPT_MODE);
   
      
     flagIsrCnt = 0;
   
     /* Enable the timer interrupt */
-    TimerIntEnable(SOC_TMR_0_REGS, TMR_INT_TMR12_NON_CAPT_MODE);
+    TimerIntEnable(SOC_TMR_1_REGS, TMR_INT_TMR12_NON_CAPT_MODE);
 #else
     /* Disable the timer interrupt */
-    TimerIntDisable(SOC_TMR_0_REGS, TMR_INT_TMR12_NON_CAPT_MODE);
+    TimerIntDisable(SOC_TMR_1_REGS, TMR_INT_TMR12_NON_CAPT_MODE);
 
     /* Clear the interrupt status in AINTC and in timer */
     IntSystemStatusClear(SYS_INT_TINT12_0);
-    TimerIntStatusClear(SOC_TMR_0_REGS, TMR_INT_TMR12_NON_CAPT_MODE);
+    TimerIntStatusClear(SOC_TMR_1_REGS, TMR_INT_TMR12_NON_CAPT_MODE);
   
      
     flagIsrCnt = 0;
   
     /* Enable the timer interrupt */
-    TimerIntEnable(SOC_TMR_0_REGS, TMR_INT_TMR12_NON_CAPT_MODE);
+    TimerIntEnable(SOC_TMR_1_REGS, TMR_INT_TMR12_NON_CAPT_MODE);
 #endif
 }
 
@@ -98,7 +98,7 @@ static void AintcTimerIntrSetUp(void)
     IntRegister(C674X_MASK_INT10, TimerIsr);
   
     /* Set the channel number for Timer interrupt, it will map to IRQ */
-    IntEventMap(C674X_MASK_INT10, SYS_INT_T64P0_TINT12);
+    IntEventMap(C674X_MASK_INT10, SYS_INT_T64P1_TINT12);
       
     /* Enable timer interrupts in AINTC */
     IntEnable(C674X_MASK_INT10);
@@ -118,13 +118,13 @@ void SysDelayTimerSetup(void)
 {    
 
     /* Configuration of Timer */
-    TimerConfigure(SOC_TMR_0_REGS, TMR_CFG_32BIT_UNCH_CLK_BOTH_INT);
+    TimerConfigure(SOC_TMR_1_REGS, TMR_CFG_32BIT_UNCH_CLK_BOTH_INT);
 
     /* Set up the AINTC to generate Timer2 interrupts */
     AintcTimerIntrSetUp();
 
     /* Enable the timer interrupt */
-    TimerIntEnable(SOC_TMR_0_REGS, TMR_INT_TMR12_NON_CAPT_MODE);    
+    TimerIntEnable(SOC_TMR_1_REGS, TMR_INT_TMR12_NON_CAPT_MODE);    
    
 }
 
@@ -132,17 +132,17 @@ void SysDelayTimerSetup(void)
 void Sysdelay(unsigned int milliSec)
 {
 
-    TimerCounterSet (SOC_TMR_0_REGS, TMR_TIMER12, 0);
-	TimerPeriodSet(SOC_TMR_0_REGS, TMR_TIMER12, (milliSec * TMR_PERIOD_LSB32));
+    TimerCounterSet (SOC_TMR_1_REGS, TMR_TIMER12, 0);
+	TimerPeriodSet(SOC_TMR_1_REGS, TMR_TIMER12, (milliSec * TMR_PERIOD_LSB32));
 	
 	/* Start the timer. Characters from cntArr will be sent from the ISR */
-	TimerEnable(SOC_TMR_0_REGS, TMR_TIMER12, TMR_ENABLE_ONCE);
+	TimerEnable(SOC_TMR_1_REGS, TMR_TIMER12, TMR_ENABLE_ONCE);
 
 	while(flagIsrCnt);
 	
 	flagIsrCnt = 1;
 	/* Disable the timer. No more timer interrupts */
-	TimerDisable(SOC_TMR_0_REGS, TMR_TIMER12); 
+	TimerDisable(SOC_TMR_1_REGS, TMR_TIMER12); 
 
 }
 
@@ -155,11 +155,11 @@ void Sysdelay(unsigned int milliSec)
  */
 void SysStartTimer(unsigned int milliSec)
 {
-    TimerCounterSet (SOC_TMR_0_REGS, TMR_TIMER12, 0);
-    TimerPeriodSet(SOC_TMR_0_REGS, TMR_TIMER12, (milliSec * TMR_PERIOD_LSB32));
+    TimerCounterSet (SOC_TMR_1_REGS, TMR_TIMER12, 0);
+    TimerPeriodSet(SOC_TMR_1_REGS, TMR_TIMER12, (milliSec * TMR_PERIOD_LSB32));
 
     /* Start the timer. Characters from cntArr will be sent from the ISR */
-    TimerEnable(SOC_TMR_0_REGS, TMR_TIMER12, TMR_ENABLE_ONCE);
+    TimerEnable(SOC_TMR_1_REGS, TMR_TIMER12, TMR_ENABLE_ONCE);
 }
 
 /**
@@ -169,7 +169,7 @@ void SysStopTimer(void)
 {
     flagIsrCnt = 1;
     /* Disable the timer. No more timer interrupts */
-    TimerDisable(SOC_TMR_0_REGS, TMR_TIMER12);
+    TimerDisable(SOC_TMR_1_REGS, TMR_TIMER12);
 }
 
 /**

@@ -61,4 +61,8 @@ SECTIONS
     .rodata        >  SHRAM
     .c6xabi.exidx  >  SHRAM
     .c6xabi.extab  >  SHRAM
+    .ddrram    :
+    {
+        . += 0x20000000;
+    } > DDR2, type=DSECT, RUN_START(_EXTERNAL_RAM_START), RUN_END(_EXTERNAL_RAM_END)
 }

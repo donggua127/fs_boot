@@ -156,7 +156,7 @@ NandInfo_t *BlNANDConfigure(void)
 *
 * \return none
 **/
-void BlNANDReadFlash (NandInfo_t *hNandInfo, unsigned int flashAddr, unsigned int size, unsigned char *destAddr)
+unsigned int BlNANDReadFlash (NandInfo_t *hNandInfo, unsigned int flashAddr, unsigned int size, unsigned char *destAddr)
 {
     static unsigned int currBlock = 0xFFFFFFFF;
     static unsigned int currPage = 0xFFFFFFFF;
@@ -187,13 +187,13 @@ void BlNANDReadFlash (NandInfo_t *hNandInfo, unsigned int flashAddr, unsigned in
             if(retVal != NAND_STATUS_PASSED)
             {
                 UARTPuts("\r\n Reading Image From NAND ...NAND Read Failed.", -1);
-                BootAbort();
+                return false;
             }
         }
         else
         {
             UARTPuts("\r\n NAND Bad Block Check Failed.", -1);
-            BootAbort();
+            return false;
         }
     }
     
@@ -244,7 +244,7 @@ void BlNANDReadFlash (NandInfo_t *hNandInfo, unsigned int flashAddr, unsigned in
         if(retVal != NAND_STATUS_PASSED)
         {
             UARTPuts("\r\n Reading Image From NAND ...NAND Read Failed.", -1);
-            BootAbort();
+            return false;
         }
     
         if (tempPtr != destAddr)
@@ -258,6 +258,7 @@ void BlNANDReadFlash (NandInfo_t *hNandInfo, unsigned int flashAddr, unsigned in
         destAddr  += bytesToCopy;
         flashAddr += bytesToCopy;
     }
+    return true;
 }
 
 /************************************************************
@@ -274,7 +275,7 @@ static void BlNANDWaitLoop(Uint32 loopcnt)
 }
 
 // Verify data written by reading and comparing byte for byte
-static Uint32 BlNANDVerifyPage(NandInfo_t *hNandInfo, Uint32 block, Uint32 page, Uint8* src, Uint8* dest)
+static Uint32 BlNANDVerifyPage(NandInfo_t *hNandInfo, Uint32 block, Uint32 page, Uint8* src, volatile unsigned char * dest)
 {
     Uint32 i, errCnt;
 
@@ -325,8 +326,8 @@ Uint32 BlNANDWriteFlash(NandInfo_t *hNandInfo, Uint8 *srcBuf, Uint32 totalPageCn
     }
     UARTprintf("Number of blocks needed for data: %x\r\n",numBlks);
 
-    // Start in block 1 (leave block 0 alone)
-    blockNum = 1;
+    // Start in block 1 (leave block 0/1 alone)
+    blockNum = 2;
 
     while (blockNum < NAND_NUMOF_BLK)
     {

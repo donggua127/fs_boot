@@ -14,7 +14,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="out" artifactName="${ProjName}" buildProperties="" cleanCommand="${CG_CLEAN_CMD}" description="" id="com.ti.ccstudio.buildDefinitions.C6000.Debug.1380770581" name="Debug" parent="com.ti.ccstudio.buildDefinitions.C6000.Debug">
+				<configuration artifactExtension="out" artifactName="${ProjName}" buildProperties="" cleanCommand="${CG_CLEAN_CMD}" description="" id="com.ti.ccstudio.buildDefinitions.C6000.Debug.1380770581" name="Debug" parent="com.ti.ccstudio.buildDefinitions.C6000.Debug" postbuildStep="cmd /c ${CWD}\..\out\copy_genais.bat">
 					<folderInfo id="com.ti.ccstudio.buildDefinitions.C6000.Debug.1380770581." name="/" resourcePath="">
 						<toolChain id="com.ti.ccstudio.buildDefinitions.C6000_7.4.exe.DebugToolchain.691043011" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.4.exe.DebugToolchain" targetTool="com.ti.ccstudio.buildDefinitions.C6000_7.4.exe.linkerDebug.563978364">
 							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.341311990" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS" valueType="stringList">
@@ -85,7 +85,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="source/src/bl_uart.c|source/src/util.c|source/src/bl_spi.c|source/src/bl_mcspi.c|source/src/bl_hsmmcsd.c|source/src/bl_copy.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="out|source/src/bl_uart.c|source/src/util.c|source/src/bl_spi.c|source/src/bl_mcspi.c|source/src/bl_hsmmcsd.c|source/src/bl_copy.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

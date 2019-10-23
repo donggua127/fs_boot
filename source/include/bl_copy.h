@@ -60,5 +60,5 @@
 **                    External Function Declarations 
 *******************************************************************************/
 
-extern void ImageCopy(void);
+extern unsigned int ImageCopy(void);
 #endif

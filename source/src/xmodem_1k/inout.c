@@ -16,13 +16,13 @@ int _inbyte(unsigned short milliSec)
 {
     int ret = -1;
     int status;
-    StopTimer();
     StartTimer(milliSec);
     do{
         ret = UARTConsoleGetcNonBlocking();
         status = IsTimerElapsed();
     }while(ret < 0 && status == 0);
 
+    StopTimer();
     return ret;
 }
 

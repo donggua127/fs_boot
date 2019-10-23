@@ -81,17 +81,14 @@ extern NandInfo_t *BlNANDConfigure(void);
 **                       Global Function Definitions 
 *******************************************************************************/
 
-void ImageCopy(void)
+unsigned int ImageCopy(void)
 {
 #if defined(SPI)
-    if (SPIBootCopy( ) != true)
-        BootAbort();
+    return SPIBootCopy( );
 #elif defined(MMCSD)
-    if (MMCSDBootCopy() != true)
-        BootAbort();
+    return MMCSDBootCopy();
 #elif defined(NAND)
-    if (NANDBootCopy() != true)
-        BootAbort();
+    return NANDBootCopy();
 #else
     #error Unsupported boot mode !!
 #endif
@@ -238,13 +235,15 @@ static unsigned int NANDBootCopy(void)
     /* Read application image header */
     offset = nandBootHeader.block * hNandInfo->blkSize + nandBootHeader.page * hNandInfo->pageSize;
 #endif
+    UARTPuts("Read Application from %d Block\r\n",IMAGE_OFFSET/NAND_BLOCKSIZE_128KB);
     NAND_readBytes(hNandInfo, &rprcHeader, &offset, sizeof(rprcFileHeader));
 
     /* Check RPRC header */
     if (rprcHeader.magic != RPRC_MAGIC_NUMBER)
     {
         UARTPuts("Invalid magic number in boot image\r\n", -1);
-        BootAbort();
+        return false;
+        //BootAbort();
     }
     else if ( 4 < rprcHeader.text_len)
     {
@@ -253,7 +252,8 @@ static unsigned int NANDBootCopy(void)
     else if ( 4 > rprcHeader.text_len)
     {
       UARTPuts("ERROR: RPRC Boot image header is malformed.\r\n", -1);
-      BootAbort();
+      return false;
+      //BootAbort();
     }
     
     /* Get loadable section count */
@@ -315,6 +315,7 @@ unsigned int UARTBootCopy(void)
     rprcSectionHeader section;
     int sectionCount = 0;
     unsigned int offset = DDR_START_ADDR;
+    UARTPuts("Boot from receive application File\r\n",-1);
 
     BootReadBytes(&rprcHeader, &offset, sizeof(rprcFileHeader));
 
@@ -322,7 +323,7 @@ unsigned int UARTBootCopy(void)
     if (rprcHeader.magic != RPRC_MAGIC_NUMBER)
     {
         UARTPuts("Invalid magic number in boot image\r\n", -1);
-        BootAbort();
+        return false;
     }
     else if ( 4 < rprcHeader.text_len)
     {
@@ -331,7 +332,7 @@ unsigned int UARTBootCopy(void)
     else if ( 4 > rprcHeader.text_len)
     {
       UARTPuts("ERROR: RPRC Boot image header is malformed.\r\n", -1);
-      BootAbort();
+      return false;
     }
 
     /* Get loadable section count */
