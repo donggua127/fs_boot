@@ -235,7 +235,7 @@ static unsigned int NANDBootCopy(void)
     /* Read application image header */
     offset = nandBootHeader.block * hNandInfo->blkSize + nandBootHeader.page * hNandInfo->pageSize;
 #endif
-    UARTPuts("Read Application from %d Block\r\n",IMAGE_OFFSET/NAND_BLOCKSIZE_128KB);
+    UARTprintf("Read Application from %d Block\r\n",IMAGE_OFFSET/NAND_BLOCKSIZE_128KB);
     NAND_readBytes(hNandInfo, &rprcHeader, &offset, sizeof(rprcFileHeader));
 
     /* Check RPRC header */

@@ -176,7 +176,7 @@ unsigned int BlNANDReadFlash (NandInfo_t *hNandInfo, unsigned int flashAddr, uns
     
     
     /* Check to see if we need to buffer a new page */
-    if ((blkNum != currBlock) || (pageNum != currPage))
+//    if ((blkNum != currBlock) || (pageNum != currPage))
     {
         if((tmp=NANDBadBlockCheck(hNandInfo, blkNum)) == NAND_BLOCK_GOOD)
         {
