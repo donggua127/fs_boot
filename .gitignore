@@ -1,0 +1,8 @@
+/Debug/
+/Release/
+.xdchelp
+\.config
+\.launches
+/src/
+out/fs_boot.ais
+out/fs_boot.out
