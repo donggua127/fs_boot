@@ -71,7 +71,7 @@ static unsigned int MMCSDBootCopy(void);
 extern int HSMMCSDInit(void);
 extern unsigned int HSMMCSDImageCopy(void);
 #elif defined(NAND)
-static void NAND_readBytes(NandInfo_t *hNandInfo, void *value, int *cursor, int size);
+static unsigned int NAND_readBytes(NandInfo_t *hNandInfo, void *value, int *cursor, int size);
 static unsigned int NANDBootCopy(void);
 extern NandInfo_t *BlNANDConfigure(void);
 #endif
@@ -236,7 +236,10 @@ static unsigned int NANDBootCopy(void)
     offset = nandBootHeader.block * hNandInfo->blkSize + nandBootHeader.page * hNandInfo->pageSize;
 #endif
     UARTPuts("Read Application from %d Block\r\n",IMAGE_OFFSET/NAND_BLOCKSIZE_128KB);
-    NAND_readBytes(hNandInfo, &rprcHeader, &offset, sizeof(rprcFileHeader));
+    if(false == NAND_readBytes(hNandInfo, &rprcHeader, &offset, sizeof(rprcFileHeader)))
+    {
+        return false;
+    }
 
     /* Check RPRC header */
     if (rprcHeader.magic != RPRC_MAGIC_NUMBER)
@@ -257,7 +260,10 @@ static unsigned int NANDBootCopy(void)
     }
     
     /* Get loadable section count */
-    NAND_readBytes(hNandInfo, &sectionCount, &offset, 4);
+    if(false == NAND_readBytes(hNandInfo, &sectionCount, &offset, 4))
+    {
+        return false;
+    }
           
     /* Skip over any remaining text header */
     offset += rprcHeader.text_len - 4;
@@ -266,12 +272,18 @@ static unsigned int NANDBootCopy(void)
     while (sectionCount> 0)
     {
         /* Read new section header */
-        NAND_readBytes(hNandInfo, &section, &offset, sizeof(rprcSectionHeader));
+        if(false == NAND_readBytes(hNandInfo, &section, &offset, sizeof(rprcSectionHeader)))
+        {
+            return false;
+        }
 
         if (section.type == RPRC_RESOURCE)
         {
             /* Check that resource has BOOTADDR type (ignore other resources) */
-            NAND_readBytes(hNandInfo, &section.type, &offset, sizeof(int));
+            if(false == NAND_readBytes(hNandInfo, &section.type, &offset, sizeof(int)))
+            {
+                return false;
+            }
             if (section.type == RPRC_BOOTADDR)
             {
                 if (entryPoint == 0)
@@ -288,7 +300,10 @@ static unsigned int NANDBootCopy(void)
         else
         {
             /* Copy section to memory */
-            NAND_readBytes(hNandInfo,(void *)section.addr, &offset, section.size);
+            if(false == NAND_readBytes(hNandInfo,(void *)section.addr, &offset, section.size))
+            {
+                return false;
+            }
             --sectionCount;
         }
     }
@@ -384,10 +399,12 @@ unsigned int UARTBootCopy(void)
  *
  * \return none
 */
-static void NAND_readBytes(NandInfo_t *hNandInfo, void *value, int *cursor, int size)
+static unsigned int NAND_readBytes(NandInfo_t *hNandInfo, void *value, int *cursor, int size)
 {
-    BlNANDReadFlash(hNandInfo, *cursor, size, value);
+    unsigned int ret;
+    ret = BlNANDReadFlash(hNandInfo, *cursor, size, value);
     *cursor += size;
+    return ret;
 }
 #endif
 

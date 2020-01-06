@@ -186,6 +186,8 @@
     #define NAND_MODULE_CLK_IN_MHZ                  (NAND_MODULE_CLK / 1000000)
 #endif
 
+
+#define MAX_RECEIVE_FILE_SIZE    (64*128*1024)
 /******************************************************************************
 **                    External Function Declararions 
 *******************************************************************************/

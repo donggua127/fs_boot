@@ -61,6 +61,7 @@ SECTIONS
     .rodata        >  SHRAM
     .c6xabi.exidx  >  SHRAM
     .c6xabi.extab  >  SHRAM
+    .shellCommand  >  SHRAM
     .ddrram    :
     {
         . += 0x20000000;

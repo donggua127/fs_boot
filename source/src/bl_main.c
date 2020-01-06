@@ -67,7 +67,10 @@ static unsigned int updateFlash();
 
 unsigned int entryPoint = 0;
 unsigned int DspEntryPoint = 0;
-
+#pragma DATA_SECTION(shell_buffrA, ".shellCommand")
+//#pragma RETAIN (buffrA)
+char shell_buffrA[100];
+char buffrB[100];
 NandInfo_t *hNandInfo;
 
 /******************************************************************************
@@ -190,7 +193,7 @@ static unsigned int updateApp()
     int retVal = false;
 
     UARTPuts("\r\nStart xmodem Receive...\n\r", -1);
-    fileLen = xmodemReceive((char *)DDR_START_ADDR, 256*1024);
+    fileLen = xmodemReceive((char *)DDR_START_ADDR, MAX_RECEIVE_FILE_SIZE);
 
     if (fileLen < 0) {
         UARTprintf ("Xmodem receive error: status: %d\n", fileLen);
@@ -209,7 +212,7 @@ static unsigned int updateFlash()
     int numPagesFile;
     int retVal = false;
     UARTPuts("\r\nStart xmodem Receive...\n\r", -1);
-    fileLen = xmodemReceive((char *)DDR_START_ADDR, 256*1024);
+    fileLen = xmodemReceive((char *)DDR_START_ADDR, MAX_RECEIVE_FILE_SIZE);
 
     if (fileLen < 0) {
         UARTprintf ("Xmodem receive error: status: %d\n", fileLen);
