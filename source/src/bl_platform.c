@@ -248,7 +248,7 @@ void BlPlatformNANDInfoInit(NandInfo_t *nandInfo)
 
     /* Init the NAND Device Info */
     nandInfo->opMode                        = NAND_DATA_XFER_MODE;
-    nandInfo->eccType                       = NAND_ECC_ALGO_RS_4BIT;
+    nandInfo->eccType                       = NAND_ECC_ALGO_NONE;
     
     nandInfo->chipSelectCnt                 = 1;
     nandInfo->dieCnt                        = 1;
